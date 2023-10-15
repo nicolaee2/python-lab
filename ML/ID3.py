@@ -17,26 +17,48 @@ class Node:
         self.label = None
 
 
-def read_data(file_name, has_labels=True):
+def read_data(file_name, has_labels=True, mapping_dicts=None):
     try:
         with open(file_name, 'r') as file:
-            # reading and converting data to integers
-            all_data = [list(map(int, line.strip().split(' '))) for line in file]
-            transposed_data = list(zip(*all_data))
+            all_data = [line.strip().split(' ') for line in file]
+
+            # Check if mapping_dicts is provided or create an empty list of dictionaries
+            if mapping_dicts is None:
+                mapping_dicts = [{} for _ in range(len(all_data[0]))]
+
+            # Convert string labels to numbers
+            numerical_data = []
+            for line in all_data:
+                numerical_line = []
+                for i, item in enumerate(line):
+                    try:
+                        # Try converting item to int
+                        numerical_line.append(int(item))
+                    except ValueError:
+                        # If conversion fails, check if item exists in the mapping, if not, add it
+                        if item not in mapping_dicts[i]:
+                            mapping_dicts[i][item] = len(mapping_dicts[i])
+                        numerical_line.append(mapping_dicts[i][item])
+                numerical_data.append(numerical_line)
+
+            transposed_data = list(zip(*numerical_data))
 
             # create Column objects for each column in the data
-            local_columns = [Column(name=f"A{i + 1}", values=col_data) for i, col_data in enumerate(transposed_data[:-1 if has_labels else None])]
+            local_columns = [Column(name=f"A{i + 1}", values=col_data) for i, col_data in
+                             enumerate(transposed_data[:-1 if has_labels else None])]
+
 
             # if file has labels, return them as a column. Otherwise, return instances.
             if has_labels:
                 local_label_column = Column(name="Label", values=transposed_data[-1])
-                return local_columns, local_label_column
+                inverse_label_mapping = {v: k for k, v in mapping_dicts[-1].items()}
+                return local_columns, local_label_column, mapping_dicts, inverse_label_mapping
             else:
                 instances = []
-                for data in all_data:
+                for data in numerical_data:
                     instance = {f"A{i + 1}": val for i, val in enumerate(data)}
                     instances.append(instance)
-                return local_columns, instances
+                return local_columns, instances, mapping_dicts
     except FileNotFoundError:
         print(f"No such file: '{file_name}'")
         sys.exit(1)
@@ -166,8 +188,8 @@ if __name__ == "__main__":
         train_file_name = sys.argv[1]
         test_file_name = sys.argv[2]
 
-        columns, label_column = read_data(train_file_name)
-        _, test_instances = read_data(test_file_name, has_labels=False)
+        columns, label_column, mapping_dicts, inverse_mapping_dicts = read_data(train_file_name)
+        _, test_instances, _ = read_data(test_file_name, has_labels=False, mapping_dicts=mapping_dicts)
 
         # train the decision tree
         root_node = train(columns, label_column)
@@ -179,6 +201,10 @@ if __name__ == "__main__":
         predictions = test_decision_tree(test_instances, root_node)
 
         # print the predictions
+        print("Predictions:")
+        if len(inverse_mapping_dicts) > 1:
+            predictions = [inverse_mapping_dicts[prediction] for prediction in predictions]
         print(predictions)
+
 
 
