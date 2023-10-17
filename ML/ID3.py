@@ -22,6 +22,12 @@ def read_data(file_name, has_labels=True, mapping_dicts=None):
         with open(file_name, 'r') as file:
             all_data = [line.strip().split(' ') for line in file]
 
+            # Check for optional attribute names
+            attribute_names = []
+            if all_data[0][0].startswith('%'):
+                attribute_names = all_data[0][1:]  # Omit the first '%' and get the names
+                all_data = all_data[1:]  # Exclude the names line from the data
+
             # Check if mapping_dicts is provided or create an empty list of dictionaries
             if mapping_dicts is None:
                 mapping_dicts = [{} for _ in range(len(all_data[0]))]
@@ -43,10 +49,13 @@ def read_data(file_name, has_labels=True, mapping_dicts=None):
 
             transposed_data = list(zip(*numerical_data))
 
-            # create Column objects for each column in the data
-            local_columns = [Column(name=f"A{i + 1}", values=col_data) for i, col_data in
-                             enumerate(transposed_data[:-1 if has_labels else None])]
-
+            # Use custom attribute names if available, else use default names
+            if attribute_names:
+                local_columns = [Column(name=name, values=col_data) for name, col_data in
+                                 zip(attribute_names, transposed_data[:-1 if has_labels else None])]
+            else:
+                local_columns = [Column(name=f"A{i + 1}", values=col_data) for i, col_data in
+                                 enumerate(transposed_data[:-1 if has_labels else None])]
 
             # if file has labels, return them as a column. Otherwise, return instances.
             if has_labels:
@@ -56,9 +65,14 @@ def read_data(file_name, has_labels=True, mapping_dicts=None):
             else:
                 instances = []
                 for data in numerical_data:
-                    instance = {f"A{i + 1}": val for i, val in enumerate(data)}
+                    if attribute_names:
+                        instance = {name: val for name, val in zip(attribute_names, data)}
+                    else:
+                        instance = {f"A{i + 1}": val for i, val in enumerate(data)}
                     instances.append(instance)
                 return local_columns, instances, mapping_dicts
+
+    # The rest of your function remains unchanged...
     except FileNotFoundError:
         print(f"No such file: '{file_name}'")
         sys.exit(1)
