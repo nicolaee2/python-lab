@@ -22,26 +22,24 @@ def read_data(file_name, has_labels=True, mapping_dicts=None):
         with open(file_name, 'r') as file:
             all_data = [line.strip().split(' ') for line in file]
 
-            # Check for optional attribute names
+            # check for optional attribute names
             attribute_names = []
             if all_data[0][0].startswith('%'):
-                attribute_names = all_data[0][1:]  # Omit the first '%' and get the names
-                all_data = all_data[1:]  # Exclude the names line from the data
+                attribute_names = all_data[0][1:]
+                all_data = all_data[1:]
 
-            # Check if mapping_dicts is provided or create an empty list of dictionaries
             if mapping_dicts is None:
                 mapping_dicts = [{} for _ in range(len(all_data[0]))]
 
-            # Convert string labels to numbers
+            # convert string labels to numbers
             numerical_data = []
             for line in all_data:
                 numerical_line = []
                 for i, item in enumerate(line):
                     try:
-                        # Try converting item to int
                         numerical_line.append(int(item))
                     except ValueError:
-                        # If conversion fails, check if item exists in the mapping, if not, add it
+                        # if conversion fails, check if item exists in the mapping, if not, add it
                         if item not in mapping_dicts[i]:
                             mapping_dicts[i][item] = len(mapping_dicts[i])
                         numerical_line.append(mapping_dicts[i][item])
@@ -49,7 +47,7 @@ def read_data(file_name, has_labels=True, mapping_dicts=None):
 
             transposed_data = list(zip(*numerical_data))
 
-            # Use custom attribute names if available, else use default names
+            # use custom attribute names if available, else use default names
             if attribute_names:
                 local_columns = [Column(name=name, values=col_data) for name, col_data in
                                  zip(attribute_names, transposed_data[:-1 if has_labels else None])]
@@ -72,7 +70,6 @@ def read_data(file_name, has_labels=True, mapping_dicts=None):
                     instances.append(instance)
                 return local_columns, instances, mapping_dicts
 
-    # The rest of your function remains unchanged...
     except FileNotFoundError:
         print(f"No such file: '{file_name}'")
         sys.exit(1)
@@ -145,21 +142,21 @@ def train(columns, label_column, depth=0):
 
     print(f"Depth: {depth}, Best Column: {best_column.name}, Min Conditional Entropy: {min_entropy}")
 
-    # If no improvement is possible, return a leaf node with the most common label
+    # if no improvement is possible, return a leaf node with the most common label
     if best_column is None:
         leaf_node = Node()
         leaf_node.label = max(label_column.values_set, key=label_column.values.count)
         return leaf_node
 
-    # Create a new internal node
+    # create a new internal node
     new_node = Node(column=best_column)
 
-    # Recursively generate children nodes
+    # recursively generate children nodes
     for unique_value in best_column.values_set:
-        # Filter columns and labels where best column equals unique value
+        # filter columns and labels where best column equals unique value
         filtered_columns_values, filtered_label_values = filter_data(columns, label_column, best_column, unique_value)
 
-        # Create a new node for each value of the best column and recurse
+        # create a new node for each value of the best column and recurse
         new_node.children[unique_value] = train(filtered_columns_values, filtered_label_values, depth + 1)
 
     return new_node
