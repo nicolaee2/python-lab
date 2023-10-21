@@ -129,10 +129,11 @@ def train(columns, label_column, depth=0):
 
     # find the best column to split on
     best_column = None
-    min_entropy = 1
+    min_entropy = float("+inf")
 
     for column in columns:
         distribution, attribute_distribution = get_distribution(column, label_column)
+        print(distribution, attribute_distribution)
         conditional_entropy = get_conditional_entropy(distribution, attribute_distribution)
         print(f"Depth: {depth}, Column: {column.name}, Conditional Entropy: {conditional_entropy}")
 

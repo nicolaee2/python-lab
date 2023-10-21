@@ -73,16 +73,16 @@ def get_all_moves(state):
     moves = []
     if zero_pos % 3 > 0:
         # if the empty cell is not in left column
-        moves.append("R")
+        moves.append("L")
     if zero_pos % 3 < 2:
         # if the empty cell is not in right column
-        moves.append("L")
+        moves.append("R")
     if zero_pos // 3 > 0:
         # if the empty cell is not in first row
-        moves.append("D")
+        moves.append("U")
     if zero_pos // 3 < 2:
         # if the empty cell is not in third row
-        moves.append("U")
+        moves.append("D")
 
     return moves
 
@@ -100,13 +100,13 @@ def modify_state(state, move):
     zero_pos = state.index(0)
     new_state = state.copy()
 
-    if move == "U":
+    if move == "D":
         new_state[zero_pos], new_state[zero_pos + 3] = new_state[zero_pos + 3], new_state[zero_pos]
-    elif move == "D" and zero_pos // 3 > 0:
+    elif move == "U" and zero_pos // 3 > 0:
         new_state[zero_pos], new_state[zero_pos - 3] = new_state[zero_pos - 3], new_state[zero_pos]
-    elif move == "L" and zero_pos % 3 < 2:
+    elif move == "R" and zero_pos % 3 < 2:
         new_state[zero_pos], new_state[zero_pos + 1] = new_state[zero_pos + 1], new_state[zero_pos]
-    elif move == "R" and zero_pos % 3 > 0:
+    elif move == "L" and zero_pos % 3 > 0:
         new_state[zero_pos], new_state[zero_pos - 1] = new_state[zero_pos - 1], new_state[zero_pos]
 
     return new_state
@@ -131,3 +131,31 @@ def transition(state, state_prev, move):
         return True, state_new
 
     return False, state
+
+
+def manhattan_distance(state):
+    """
+    Compute the Manhattan distance for a given state of the 3x3 sliding puzzle.
+
+    :param state: A 1D list representing the current configuration of the tiles in the puzzle.
+    :return: The minimum Manhattan distance of the state among all goal states.
+    """
+
+    # all possible goal states
+    goal_states = [[1, 2, 3, 4, 5, 6, 7, 8, 0][i:] + [1, 2, 3, 4, 5, 6, 7, 8, 0][:i] for i in range(9)]
+
+    # foreach goal state, compute the Manhattan distance
+    distances = [
+
+        # sum of the distances of each tile to its goal position
+        sum(
+            abs(divmod(goal.index(tile), 3)[0] - divmod(i, 3)[0]) +
+            abs(divmod(goal.index(tile), 3)[1] - divmod(i, 3)[1])
+            for i, tile in enumerate(state) if tile != 0
+        )
+        for goal in goal_states
+    ]
+
+    return min(distances)
+
+

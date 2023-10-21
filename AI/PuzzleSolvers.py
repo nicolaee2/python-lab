@@ -1,5 +1,5 @@
 from PuzzleStateUtil import *
-
+import heapq
 
 class PuzzleSolvers:
     @staticmethod
@@ -78,3 +78,32 @@ class PuzzleSolvers:
         print("Solution: {}".format(state))
         print("Solution path: {}".format(solution_path))
         print("\n\n")
+
+    @staticmethod
+    def a_star_search(initial_state):
+        if not is_solvable(initial_state):
+            return None
+
+        # queue containing (f, state, path)
+        queue = [(manhattan_distance(initial_state), initial_state, [])]
+        explored = set()
+
+        while queue:
+            f, state, path = heapq.heappop(queue)
+
+            if is_final_state(state):
+                return state, path, len(path)
+
+            explored.add(tuple(state))
+
+            for move in get_all_moves(state):
+                new_state = modify_state(state, move)
+
+                if tuple(new_state) not in explored:
+                    g = len(path) + 1
+                    h = manhattan_distance(new_state)
+                    f = g + h
+                    heapq.heappush(queue, (f, new_state, path + [move]))
+
+        return None
+
