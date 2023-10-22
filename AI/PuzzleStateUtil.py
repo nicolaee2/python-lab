@@ -159,3 +159,52 @@ def manhattan_distance(state):
     return min(distances)
 
 
+def hamming_distance(state):
+    """
+    Compute the Hamming distance for a given state of the 3x3 sliding puzzle.
+
+    :param state: A 1D list representing the current configuration of the tiles in the puzzle.
+    :return: The minimum Hamming distance of the state among all goal states.
+    """
+
+    # all possible goal states
+    goal_states = [[1, 2, 3, 4, 5, 6, 7, 8, 0][i:] + [1, 2, 3, 4, 5, 6, 7, 8, 0][:i] for i in range(9)]
+
+    # foreach goal state, compute the Hamming distance
+    distances = [
+
+        # sum of the distances of each tile to its goal position
+        sum(
+            1 if goal[i] != tile else 0
+            for i, tile in enumerate(state) if tile != 0
+        )
+        for goal in goal_states
+    ]
+
+    return min(distances)
+
+
+def chebyshev_distance(state):
+    """
+    Compute the Chebyshev distance for a given state of the 3x3 sliding puzzle.
+
+    :param state: A 1D list representing the current configuration of the tiles in the puzzle.
+    :return: The minimum Chebyshev distance of the state among all goal states.
+    """
+
+    # all possible goal states
+    goal_states = [[1, 2, 3, 4, 5, 6, 7, 8, 0][i:] + [1, 2, 3, 4, 5, 6, 7, 8, 0][:i] for i in range(9)]
+
+    # foreach goal state, compute the Chebyshev distance
+    distances = [
+
+        # max of the distances of each tile to its goal position
+        max(
+            abs(divmod(goal.index(tile), 3)[0] - divmod(i, 3)[0]) +
+            abs(divmod(goal.index(tile), 3)[1] - divmod(i, 3)[1])
+            for i, tile in enumerate(state) if tile != 0
+        )
+        for goal in goal_states
+    ]
+
+    return min(distances)
