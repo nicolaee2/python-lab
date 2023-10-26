@@ -17,7 +17,7 @@ def is_solvable(state):
             if state_no_zero[i] > state_no_zero[j]:
                 inversion_count += 1
 
-    # if the inversion count is even, the state is solvable
+    # the state is solvable, if the inversion count is even
     return inversion_count % 2 == 0
 
 
@@ -93,7 +93,7 @@ def modify_state(state, move):
     The move is considered valid
 
     :param state: The state
-    :param move: The move ("U", "D", "L", "R")
+    :param move: The move
     :return: The new state after the move
     """
 
@@ -118,8 +118,8 @@ def transition(state, state_prev, move):
 
     :param state: The state
     :param state_prev: The previous state
-    :param move: The move ("U", "D", "L", "R")
-    :return: True if the transition is valid, otherwise False.
+    :param move: The move
+    :return: True if the transition is valid, otherwise False
              The new state, or the current state, if transition is invalid
     """
     moves = get_all_moves(state)
@@ -135,10 +135,10 @@ def transition(state, state_prev, move):
 
 def manhattan_distance(state):
     """
-    Compute the Manhattan distance for a given state of the 3x3 sliding puzzle.
+    Compute the Manhattan distance for a given state
 
-    :param state: A 1D list representing the current configuration of the tiles in the puzzle.
-    :return: The minimum Manhattan distance of the state among all goal states.
+    :param state: A 1D list representing the current configuration
+    :return: The minimum Manhattan distance taken from all goal states
     """
 
     # all possible goal states
@@ -156,15 +156,16 @@ def manhattan_distance(state):
         for goal in goal_states
     ]
 
+    # return the minimum distance
     return min(distances)
 
 
 def hamming_distance(state):
     """
-    Compute the Hamming distance for a given state of the 3x3 sliding puzzle.
+    Compute the Hamming distance for a given state
 
-    :param state: A 1D list representing the current configuration of the tiles in the puzzle.
-    :return: The minimum Hamming distance of the state among all goal states.
+    :param state: A 1D list representing the current state
+    :return: The minimum Hamming distance taken from all goal states
     """
 
     # all possible goal states
@@ -181,15 +182,16 @@ def hamming_distance(state):
         for goal in goal_states
     ]
 
+    # return the minimum distance
     return min(distances)
 
 
 def chebyshev_distance(state):
     """
-    Compute the Chebyshev distance for a given state of the 3x3 sliding puzzle.
+    Compute the Chebyshev distance for a given state
 
-    :param state: A 1D list representing the current configuration of the tiles in the puzzle.
-    :return: The minimum Chebyshev distance of the state among all goal states.
+    :param state: A 1D list representing the current state
+    :return: The minimum Chebyshev distance from all goal states
     """
 
     # all possible goal states
@@ -207,4 +209,5 @@ def chebyshev_distance(state):
         for goal in goal_states
     ]
 
+    # return the minimum distance
     return min(distances)

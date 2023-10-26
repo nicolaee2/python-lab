@@ -5,66 +5,83 @@ import time
 
 class PuzzleSolvers:
     @staticmethod
-    def dls(state, prev_state, depth, steps, solution_path):
+    def dls(current_state, previous_state, max_depth, step_counter, path):
         """
         Depth Limited Search
 
-        :param solution_path: The solution path
-        :param steps: The number of steps
-        :param prev_state: The previous state
-        :param state: The current state
-        :param depth: The maximum depth
-        :return: The solution (if found)
+        :param path: The solution path
+        :param step_counter: The number of steps
+        :param previous_state: The previous state
+        :param current_state: The current state
+        :param max_depth: The maximum depth
+        :return: The solution
         """
-        steps += 1
+        step_counter += 1
 
-        # If reached the final state, stop recursing.
-        if is_final_state(state):
-            return state, steps, solution_path
+        # stop recurring if the final state was reached
+        if is_final_state(current_state):
+            return current_state, step_counter, path
 
-        # If reached the maximum depth, stop recursing.
-        if depth <= 0:
-            return False, steps, solution_path
+        # stop recurring if the max depth was reached
+        if max_depth <= 0:
+            return False, step_counter, path
 
-        # Recur for all the adjacent states
-        for move in get_all_moves(state):
-            is_move_valid, new_state = transition(state, prev_state, move)
+        # for all adjacent states, call recursive dls
+        for move in get_all_moves(current_state):
+            is_valid, new_state = transition(current_state, previous_state, move)
 
-            if is_move_valid:
-                result, steps_for_subtree, solution_path = (
-                    PuzzleSolvers.dls(new_state, state, depth - 1, 0, solution_path))
+            if is_valid:
+                result, steps_for_subtree, path = (
+                    PuzzleSolvers.dls(new_state, current_state, max_depth - 1, 0, path)
+                )
 
-                steps += steps_for_subtree
+                # add the steps for the visited subtree
+                step_counter += steps_for_subtree
+
+                # when we find the solution, add the current move
                 if result:
-                    solution_path.append(move)
-                    return result, steps, solution_path
+                    path.append(move)
+                    return result, step_counter, path
 
-        return False, steps, solution_path
+        # if no solution was found
+        return False, step_counter, path
 
     @staticmethod
-    def iddfs(state):
+    def iddfs(current_state):
         """
         Iterative Deepening Depth First Search
 
-        :param state: The current state
-        :return: The solution (if found)
+        :param current_state: The current state
+        :return: The solution, if it exists
         """
         depth = 0
         total_steps = 0
-        solution_path = []
+        path = []
 
-        if is_final_state(state):
-            return state, total_steps, depth, solution_path
+        # check if the initial state is a final state
+        if is_final_state(current_state):
+            return current_state, total_steps, depth, path
 
-        if not is_solvable(state):
+        # check the non-solvable case
+        if not is_solvable(current_state):
             return False
 
         while True:
-            prev_state = []
-            result, total_steps, solution_path = PuzzleSolvers.dls(state, prev_state, depth, total_steps, solution_path)
+            previous_state = []
+
+            result, total_steps, path = PuzzleSolvers.dls(
+                current_state,
+                previous_state,
+                depth,
+                total_steps,
+                path
+            )
+
             if result:
-                solution_path.reverse()
-                return result, total_steps, depth, solution_path
+                path.reverse()
+                return result, total_steps, depth, path
+
+            # go to next depth
             depth += 1
 
     @staticmethod
@@ -90,7 +107,7 @@ class PuzzleSolvers:
 
             next_states = []
             for move in moves:
-                valid_transition, next_state = transition(current_state, state_prev=current_state, move=move)
+                valid_transition, next_state = transition(current_state, current_state, move)
                 if valid_transition and tuple(next_state) not in visited_states:
                     next_states.append((next_state, move))
 
@@ -125,8 +142,11 @@ class PuzzleSolvers:
         explored = set()
 
         while queue:
+
+            # get the current optimum
             f, state, path, prev_state = heapq.heappop(queue)
 
+            # check final state case
             if is_final_state(state):
                 return state, path, len(path)
 
@@ -136,11 +156,15 @@ class PuzzleSolvers:
                 valid_transition, new_state = transition(state, prev_state, move)
 
                 if valid_transition and tuple(new_state) not in explored:
+                    # compute f, g and h
                     g = len(path) + 1
                     h = manhattan_distance(new_state)
                     f = g + h
+
+                    # add to queue
                     heapq.heappush(queue, (f, new_state, path + [move], state))
 
+        # no solution found
         return None
 
     @staticmethod
