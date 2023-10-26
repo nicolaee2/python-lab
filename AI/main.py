@@ -11,6 +11,6 @@ if __name__ == '__main__':
     # PuzzleSolvers.print_iddfs_result(PuzzleSolvers.iddfs(puzzle2))
     # PuzzleSolvers.print_iddfs_result(PuzzleSolvers.iddfs(puzzle3))
     # print(PuzzleSolvers.a_star_search(puzzle1))
-    # print(PuzzleSolvers.greedy_search_stack(puzzle3, chebyshev_distance))
+    # print(PuzzleSolvers.greedy_search(puzzle1, manhattan_distance))
 
     PuzzleSolvers.run_all_and_print([puzzle1, puzzle2, puzzle3])

@@ -1,6 +1,5 @@
 from PuzzleStateUtil import *
 import heapq
-import random
 import time
 
 
@@ -74,7 +73,7 @@ class PuzzleSolvers:
             return None, [], 0
 
         visited_states = set()
-        stack = [(initial_state, [])]  # Each item in the stack is a tuple (state, path_to_that_state)
+        stack = [(initial_state, [])]
 
         while stack:
             current_state, current_path = stack.pop()
@@ -88,16 +87,17 @@ class PuzzleSolvers:
                 return current_state, current_path, len(current_path)
 
             moves = get_all_moves(current_state)
-            next_states = [
-                (modify_state(current_state, move), move)
-                for move in moves
-                if tuple(modify_state(current_state, move)) not in visited_states
-            ]
+
+            next_states = []
+            for move in moves:
+                valid_transition, next_state = transition(current_state, state_prev=current_state, move=move)
+                if valid_transition and tuple(next_state) not in visited_states:
+                    next_states.append((next_state, move))
 
             if not next_states:
                 continue
 
-            # Evaluate heuristics and sort
+            # evaluate heuristic and sort
             state_costs = [(heuristic(state), state, move) for state, move in next_states]
             state_costs.sort(key=lambda x: x[0])
 
@@ -109,7 +109,7 @@ class PuzzleSolvers:
             for cost, state, move in state_costs:
                 stack.append((state, current_path + [move]))
 
-        return None, [], 0  # No solution found
+        return None, [], 0
 
     # Example usage:
     # initial_state = init([[2, 8, 3], [1, 6, 4], [7, 0, 5]])
@@ -120,12 +120,12 @@ class PuzzleSolvers:
         if not is_solvable(initial_state):
             return None
 
-        # queue containing (f, state, path)
-        queue = [(manhattan_distance(initial_state), initial_state, [])]
+        # queue containing (f, state, path, prev_state)
+        queue = [(manhattan_distance(initial_state), initial_state, [], None)]
         explored = set()
 
         while queue:
-            f, state, path = heapq.heappop(queue)
+            f, state, path, prev_state = heapq.heappop(queue)
 
             if is_final_state(state):
                 return state, path, len(path)
@@ -133,13 +133,13 @@ class PuzzleSolvers:
             explored.add(tuple(state))
 
             for move in get_all_moves(state):
-                new_state = modify_state(state, move)
+                valid_transition, new_state = transition(state, prev_state, move)
 
-                if tuple(new_state) not in explored:
+                if valid_transition and tuple(new_state) not in explored:
                     g = len(path) + 1
                     h = manhattan_distance(new_state)
                     f = g + h
-                    heapq.heappush(queue, (f, new_state, path + [move]))
+                    heapq.heappush(queue, (f, new_state, path + [move], state))
 
         return None
 
