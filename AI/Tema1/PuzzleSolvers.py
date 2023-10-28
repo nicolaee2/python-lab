@@ -128,10 +128,6 @@ class PuzzleSolvers:
 
         return None, [], 0
 
-    # Example usage:
-    # initial_state = init([[2, 8, 3], [1, 6, 4], [7, 0, 5]])
-    # final_state, path, path_length = greedy_search_stack(initial_state, manhattan_distance)
-
     @staticmethod
     def a_star_search(initial_state):
         if not is_solvable(initial_state):
