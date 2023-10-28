@@ -7,7 +7,6 @@ def special_sudoku_board_initialization(board_state, board, special_cells):
 
     for i in range(len(special_cells)):
         x, y = special_cells[i]
-        board_state.get_cell(x, y).set_special(True)
         board_state.get_cell(x, y).set_domain(even_domain)
 
     for i in range(board_state.get_size()):
@@ -38,13 +37,6 @@ def is_valid_move(board_state, row, col, num):
     if num in board_state.get_square(row - row % 3, col - col % 3, 3):
         return False
     return True
-
-
-def find_next_value(board_state, row, col):
-    for num in board_state.get_cell(row, col).get_domain():
-        if is_valid_move(board_state, row, col, num):
-            return num
-    return None
 
 
 def find_solution(board_state):
