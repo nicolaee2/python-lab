@@ -13,6 +13,9 @@ def special_sudoku_board_initialization(board_state, board, special_cells):
         for j in range(board_state.get_size()):
             if board[i][j] != 0:
                 board_state.get_cell(i, j).set_domain([board[i][j]])
+
+                # TODO: filter domains in row, column and square
+
             else:
                 board_state.get_cell(i, j).set_domain(domain)
 
@@ -20,6 +23,9 @@ def special_sudoku_board_initialization(board_state, board, special_cells):
 
 
 def find_next_cell(board_state):
+
+    # TODO: MRV heuristic
+
     for i in range(board_state.get_size()):
         for j in range(board_state.get_size()):
             if not board_state.get_cell(i, j).get_value() != 0:
@@ -50,11 +56,17 @@ def find_solution(board_state):
         if is_valid_move(board_state, row, col, num):
             board_state.get_cell(row, col).set_value(num)
 
+            # TODO: filter domains in row, column and square
+
             next_state, solution_found = find_solution(board_state)
             if solution_found:
                 return next_state, True
 
             board_state.get_cell(row, col).set_value(0)
+
+            # TODO: restore domains in row, column and square
+
+
 
     return board_state, False
 
