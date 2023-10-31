@@ -21,11 +21,6 @@ class SpecialSudokuSolver:
                     else:
                         self.__board_state.get_cell(i, j).set_domain(copy.deepcopy(even_domain))
 
-        for i in range(self.__board_state.get_size()):
-            for j in range(self.__board_state.get_size()):
-                if board[i][j] != 0:
-                    self.__filter_domains(i, j, board[i][j])
-                    pass
 
     def __filter_domains(self, row, col, num):
         indices_of_domains_modified = []
