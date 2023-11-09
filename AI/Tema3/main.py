@@ -1,5 +1,4 @@
 import itertools
-import time
 
 
 def init():
@@ -51,7 +50,7 @@ def play(turn, available_numbers, a_numbers, b_numbers):
         print(f"Player chose {choice}\n")
     else:
         print("Robot is thinking...")
-        choice = minmax(available_numbers, a_numbers, b_numbers, 'B')[1]
+        choice = minmax(available_numbers, a_numbers, b_numbers)[1]
         print(f"Robot chose {choice}\n")
     return move(turn, available_numbers, a_numbers, b_numbers, choice)
 
@@ -87,42 +86,95 @@ def max_value(available_numbers, a_numbers, b_numbers):
         max_score = max(max_score, score)
     return max_score
 
-def heuristic(available_numbers, a_numbers, b_numbers, player):
-    opponent = 'B' if player == 'A' else 'A'
-    player_potential_wins = 0
-    opponent_potential_wins = 0
 
-    # calculate the possible moves taking into account the moves that have already been played
-    player_possible_moves = [x for x in list(range(1, 10)) if x not in a_numbers]
-    opponent_possible_moves = [x for x in list(range(1, 10)) if x not in b_numbers]
+def heuristic(available_numbers, a_numbers, b_numbers):
+    """
+    Returns a value for a state
 
-    for combination in itertools.combinations(player_possible_moves, 3):
-        if sum(combination) == 15:
-            player_potential_wins += 1
-    for combination in itertools.combinations(opponent_possible_moves, 3):
-        if sum(combination) == 15:
-            opponent_potential_wins += 1
-    return player_potential_wins - opponent_potential_wins
+    :param available_numbers: the available numbers
+    :param a_numbers: the chosen numbers of player A.
+    :param b_numbers: the chosen numbers of player B
+    :return: a value for the state
+    """
 
-def minmax(available_numbers, a_numbers, b_numbers, player, depth=3):
+    # initialize the number of wins for each player
+    a_potential_wins = 0
+    b_potential_wins = 0
 
+    # initialize the possible moves for each player
+    a_possible_moves = a_numbers + available_numbers
+    b_possible_moves = b_numbers + available_numbers
+
+    # check the possible combinations for player A
+    for comb in itertools.combinations(a_possible_moves, 3):
+        if sum(comb) == 15:
+            a_potential_wins += 1
+
+    # check the possible combinations for player B
+    for comb in itertools.combinations(b_possible_moves, 3):
+        if sum(comb) == 15:
+            b_potential_wins += 1
+
+    return b_potential_wins - a_potential_wins
+
+
+def minmax(available_numbers, a_numbers, b_numbers, depth=3, is_maximizing_player=True):
+    """
+    Returns the best score and the best action for the current state, considering the next best moves for the opponent
+
+    :param available_numbers: the available numbers
+    :param a_numbers: the chosen numbers of player A.
+    :param b_numbers: the chosen numbers of player B
+    :param depth: the depth of the tree
+    :param is_maximizing_player: True if the current player is the maximizing player, False otherwise
+    :return: the best score and the best action for the current state
+    """
+
+    # check final state
     final, winner = final_state(available_numbers, a_numbers, b_numbers)
     if final:
+
+        # if the state is final, return the score and None
         if winner == "D":
             return 0, None
+        elif winner == "A":
+            return float('-inf'), None
         else:
-            return float('inf') if winner == 'B' else float('-inf'), None
+            return float('inf'), None
+
+    # check final depth, return the heuristic value and None
     if depth == 0:
-        return heuristic(available_numbers, a_numbers, b_numbers, player), None
-    best_score = float('-inf') if player == 'B' else float('inf')
+        return heuristic(available_numbers, a_numbers, b_numbers), None
+
+    # initialize the best score and the best action
+    if is_maximizing_player:
+        best_score = float('-inf')
+    else:
+        best_score = float('inf')
     best_action = None
+
     for number in available_numbers:
-        turn = 0 if player == 'A' else 1
-        _, new_available_numbers, new_a_numbers, new_b_numbers = move(turn, available_numbers[:], a_numbers[:], b_numbers[:], number)
-        score, _ = minmax(new_available_numbers, new_a_numbers, new_b_numbers, 'B' if player == 'A' else 'A', depth - 1)
-        if player == 'B' and score > best_score or player == 'A' and score < best_score:
-            best_score = score
-            best_action = number
+
+        if is_maximizing_player:
+            _, new_available_numbers, new_a_numbers, new_b_numbers = (
+                move(1, available_numbers[:], a_numbers[:], b_numbers[:], number)
+            )
+        else:
+            _, new_available_numbers, new_a_numbers, new_b_numbers = (
+                move(0, available_numbers[:], a_numbers[:], b_numbers[:], number)
+            )
+
+        score, _ = minmax(new_available_numbers, new_a_numbers, new_b_numbers, depth - 1, not is_maximizing_player)
+
+        if is_maximizing_player:
+            if score > best_score:
+                best_score = score
+                best_action = number
+        else:
+            if score < best_score:
+                best_score = score
+                best_action = number
+
     return best_score, best_action
 
 
