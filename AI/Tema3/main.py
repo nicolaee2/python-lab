@@ -9,6 +9,12 @@ def init():
 
 
 def is_winner(numbers):
+    """
+    Checks if the given numbers form a winning combination.
+
+    :param numbers:
+    :return:
+    """
     if len(numbers) < 3:
         return False
     for i in range(len(numbers)):
@@ -20,6 +26,14 @@ def is_winner(numbers):
 
 
 def final_state(available_numbers, a_numbers, b_numbers):
+    """
+    Check final state
+
+    :param available_numbers: available numbers
+    :param a_numbers: the numbers chosen by A
+    :param b_numbers: the numbers chosen by B
+    :return: True, if it is a final state, false otherwise
+    """
     if is_winner(a_numbers):
         return True, 'A'
     elif is_winner(b_numbers):
