@@ -72,12 +72,12 @@ def play(turn, available_numbers, a_numbers, b_numbers):
 def min_value(available_numbers, a_numbers, b_numbers):
     if final_state(available_numbers, a_numbers, b_numbers)[0]:
         if is_winner(b_numbers):
-            return float('inf')
+            return float('1000')
         elif is_winner(a_numbers):
-            return float('-inf')
+            return float('-1000')
         else:
             return 0
-    min_score = float('inf')
+    min_score = float('1000')
     for number in available_numbers:
         _, new_available_numbers, new_a_numbers, new_b_numbers = move(0, available_numbers[:], a_numbers[:], b_numbers[:], number)
         score = max_value(new_available_numbers, new_a_numbers, new_b_numbers)
@@ -88,12 +88,12 @@ def min_value(available_numbers, a_numbers, b_numbers):
 def max_value(available_numbers, a_numbers, b_numbers):
     if final_state(available_numbers, a_numbers, b_numbers)[0]:
         if is_winner(b_numbers):
-            return float('inf')
+            return float('1000')
         elif is_winner(a_numbers):
-            return float('-inf')
+            return float('-1000')
         else:
             return 0
-    max_score = float('-inf')
+    max_score = float('-1000')
     for number in available_numbers:
         _, new_available_numbers, new_a_numbers, new_b_numbers = move(1, available_numbers[:], a_numbers[:], b_numbers[:], number)
         score = min_value(new_available_numbers, new_a_numbers, new_b_numbers)
@@ -132,7 +132,7 @@ def heuristic(available_numbers, a_numbers, b_numbers):
     return b_potential_wins - a_potential_wins
 
 
-def minmax(available_numbers, a_numbers, b_numbers, depth=3, is_maximizing_player=True):
+def minmax(available_numbers, a_numbers, b_numbers, depth=4, is_maximizing_player=True):
     """
     Returns the best score and the best action for the current state, considering the next best moves for the opponent
 
@@ -152,9 +152,9 @@ def minmax(available_numbers, a_numbers, b_numbers, depth=3, is_maximizing_playe
         if winner == "D":
             return 0, None
         elif winner == "A":
-            return float('-inf'), None
+            return float('-1000'), None
         else:
-            return float('inf'), None
+            return float('1000'), None
 
     # check final depth, return the heuristic value and None
     if depth == 0:
@@ -162,9 +162,10 @@ def minmax(available_numbers, a_numbers, b_numbers, depth=3, is_maximizing_playe
 
     # initialize the best score and the best action
     if is_maximizing_player:
-        best_score = float('-inf')
+        best_score = float('-1000')
     else:
-        best_score = float('inf')
+        best_score = float('1000')
+
     best_action = None
 
     for number in available_numbers:
@@ -181,11 +182,11 @@ def minmax(available_numbers, a_numbers, b_numbers, depth=3, is_maximizing_playe
         score, _ = minmax(new_available_numbers, new_a_numbers, new_b_numbers, depth - 1, not is_maximizing_player)
 
         if is_maximizing_player:
-            if score > best_score:
+            if score >= best_score:
                 best_score = score
                 best_action = number
         else:
-            if score < best_score:
+            if score <= best_score:
                 best_score = score
                 best_action = number
 
