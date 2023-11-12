@@ -1,31 +1,34 @@
-import random
+from Layer import Layer
 
 
 class Network:
 
-    def __init__(self, num_of_attributes, num_classes, hidden_layer_size):
+    def __init__(self, input_layer_size, hidden_layer_sizes, output_layer_size):
+        self.layers = []
+        self.layers.append(Layer(input_layer_size, hidden_layer_sizes[0]))
+        for i in range(1, len(hidden_layer_sizes)):
+            self.layers.append(Layer(hidden_layer_sizes[i - 1], hidden_layer_sizes[i]))
+        self.layers.append(Layer(hidden_layer_sizes[-1], output_layer_size))
+
+    def evaluate(self, inputs):
+        outputs = inputs
+        for layer in self.layers:
+            outputs = layer.compute_output(outputs)
+        return outputs
+
+    def evaluate_and_train(self, train_x, train_y, epochs):
+        for epoch in range(epochs):
+            for x, y in zip(train_x, train_y):
+                output = self.evaluate(x)
+                print(output)
+                print(y)
+                print()
 
 
-    def parameter_initialization(self):
-        """
-        Initializes the parameters and weights for the neural network
+    def __str__(self):
+        layers = ""
+        for layer in self.layers:
+            layers += str(layer) + "\n"
+        return "Network: layers = " + layers
 
-        :param num_of_attributes: The number of attributes
-        :param num_classes: The number of classes
-        :param hidden_layer_size: The size of the hidden layer
-        :return: A tuple containing the weights for the input to hidden layer and hidden to output layer
-        """
 
-        # initialize the weights for the input to hidden layer
-        weights_input_to_hidden = [
-            [random.uniform(-1, 1) for _ in range(hidden_layer_size)] for _ in range(num_of_attributes)
-        ]
-
-        # initialize the weights for the hidden to output layer
-        weights_hidden_to_output = [
-            [random.uniform(-1, 1) for _ in range(num_classes)] for _ in range(hidden_layer_size)
-        ]
-
-        epochs = 1000
-
-        return weights_input_to_hidden, weights_hidden_to_output, epochs

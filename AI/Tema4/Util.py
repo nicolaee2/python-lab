@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 
 class Util:
@@ -30,7 +31,7 @@ class Util:
         Reads a dataset from a file
 
         :param filename: File to read from
-        :return: A list of tuples (<attributes values>, class label)
+        :return: dataset_x, dataset_y, num_attributes, num_classes
         """
         num_attributes = Util.get_number_of_attributes(filename)
 
@@ -39,7 +40,8 @@ class Util:
             data = file.readlines()
 
         # initialize the dataset
-        train_dataset = []
+        dataset_x = []
+        dataset_y = []
 
         # for each line in the file
         for line in data:
@@ -53,51 +55,54 @@ class Util:
             # check if the line is valid
             if len(parts) == num_attributes + 1:
 
-                # extract the attributes and class label
-                attributes = [float(part) for part in parts[:-1]]
-                class_label = int(parts[-1])
-
-                # append the tuple to the dataset
-                train_dataset.append((attributes, class_label))
+                # add the attributes and class label to the dataset
+                dataset_x.append([float(part) for part in parts[:-1]])
+                dataset_y.append(int(parts[-1]))
             else:
                 print('Invalid line: ', line)
 
-        return train_dataset
+        return dataset_x, dataset_y, num_attributes, len(set(dataset_y))
 
     @staticmethod
-    def split_dataset(dataset, training_split_ratio):
+    def split_dataset(dataset_x, dataset_y, training_split_ratio):
         """
         Splits a dataset into training and testing sets
 
-        :param dataset: The dataset to split
+        :param dataset_x: The dataset containing the attributes
+        :param dataset_y: The dataset containing the class labels
         :param training_split_ratio: The ratio of the training set
         :return: A tuple containing the training and testing sets
         """
+        dataset = list(zip(dataset_x, dataset_y))
         dataset_length = len(dataset)
 
         # shuffle the dataset
         random.shuffle(dataset)
 
-        # split the dataset into classes
-        dataset_class_1 = [data for data in dataset if data[1] == 1]
-        dataset_class_2 = [data for data in dataset if data[1] == 2]
-        dataset_class_3 = [data for data in dataset if data[1] == 3]
+        # compute separation index
+        separation_index = int(dataset_length * training_split_ratio)
 
-        # compute split index
-        split_index = int((1 - training_split_ratio) * dataset_length / 3)
+        # split the dataset
+        training_set = dataset[:separation_index]
+        testing_set = dataset[separation_index:]
 
-        # split the dataset into training set
-        testing_set = dataset_class_1[:split_index]
-        testing_set += dataset_class_2[:split_index]
-        testing_set += dataset_class_3[:split_index]
+        train_x, train_y = zip(*training_set)
+        test_x, test_y = zip(*testing_set)
 
-        # split the dataset into testing set
-        training_set = dataset_class_1[split_index:]
-        training_set += dataset_class_2[split_index:]
-        training_set += dataset_class_3[split_index:]
+        return train_x, train_y, test_x, test_y
 
-        # shuffle the training and testing sets
-        random.shuffle(testing_set)
-        random.shuffle(training_set)
+    @staticmethod
+    def activation_function_hyperbolic_tangent(vector):
+        return [
+            (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x)) for x in vector
+        ]
 
-        return training_set, testing_set
+    @staticmethod
+    def activation_function_sigmoid_derivative(vector):
+        return [
+            np.exp(-x) / ((1 + np.exp(-x)) ** 2) for x in vector
+        ]
+
+    @staticmethod
+    def error_function_mse(predictions, targets):
+        return sum((p - t) ** 2 for p, t in zip(predictions, targets)) / len(predictions)

@@ -1,7 +1,7 @@
-import random
 import math
 
 from Util import Util
+from Network import Network
 
 
 
@@ -39,10 +39,10 @@ def mean_squared_error(predictions, targets):
     return sum((p - t) ** 2 for p, t in zip(predictions, targets)) / len(predictions)
 
 
-dataset = Util.read_dataset('seeds_dataset.txt')
-training, testing = Util.split_dataset(dataset, 0.7)
+dataset_x, dataset_y, num_attributes, num_classes = Util.read_dataset('seeds_dataset.txt')
+train_x, train_y, test_x, test_y = Util.split_dataset(dataset_x, dataset_y, 0.8)
 
-print(training)
-print(testing)
+network = Network(num_attributes, [3, 5], num_classes)
+network.evaluate_and_train(train_x, train_y, 0.1, 30)
 
 # weights_input_to_hidden, weights_hidden_to_output, epochs = parameter_initialization(num_attributes, 3, 5)
