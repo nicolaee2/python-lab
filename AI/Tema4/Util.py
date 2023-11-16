@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import math
 
 
 class Util:
@@ -92,15 +93,35 @@ class Util:
         return train_x, train_y, test_x, test_y
 
     @staticmethod
+    def activation_function_sigmoid(vector):
+        """
+        Applies the activation function to the input
+
+        :param x: The input
+        :return: The output of the activation function
+        """
+
+        return [
+            1 / (1 + math.exp(-x)) for x in vector
+        ]
+
+    @staticmethod
     def activation_function_hyperbolic_tangent(vector):
         return [
             (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x)) for x in vector
         ]
 
     @staticmethod
-    def activation_function_sigmoid_derivative(vector):
+    def activation_function_derivative(vector):
+        """
+        Applies the derivative of the activation function to the input
+
+        :param vector: The input
+        :return: The output of the derivative of the activation function
+        """
+        output = Util.activation_function_sigmoid(vector)
         return [
-            np.exp(-x) / ((1 + np.exp(-x)) ** 2) for x in vector
+            o * (1 - o) for o in output
         ]
 
     @staticmethod

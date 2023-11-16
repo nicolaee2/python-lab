@@ -13,7 +13,7 @@ class Layer:
         outputs = []
         for neuron in self.neurons:
             outputs.append(neuron.compute(inputs))
-        return Util.activation_function_hyperbolic_tangent(outputs)
+        return Util.activation_function_sigmoid(outputs)
 
     def __str__(self):
         neurons = ""
