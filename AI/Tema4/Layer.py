@@ -6,14 +6,13 @@ from Util import Util
 class Layer:
     def __init__(self, input_count, neuron_count):
         self.neurons = []
+        self.output = []
         for i in range(neuron_count):
             self.neurons.append(Neuron(np.random.uniform(-1, 1, input_count)))
 
     def compute_output(self, inputs):
-        outputs = []
-        for neuron in self.neurons:
-            outputs.append(neuron.compute(inputs))
-        return Util.activation_function_sigmoid(outputs)
+        self.output = [neuron.compute(inputs) for neuron in self.neurons]
+        return Util.activation_function_sigmoid(self.output)
 
     def __str__(self):
         neurons = ""
