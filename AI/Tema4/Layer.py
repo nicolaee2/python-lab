@@ -19,3 +19,4 @@ class Layer:
         for neuron in self.neurons:
             neurons += str(neuron) + "\n"
         return "Layer: neurons = " + neurons
+    
