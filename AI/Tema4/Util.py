@@ -8,13 +8,13 @@ class Util:
     @staticmethod
     def get_number_of_attributes(filename):
         """
-        Gets the number of attributes from a file
+        Gets the number of attributes from a file.txt
 
-        :param filename: The file to read from
+        :param filename: The file.txt to read from
         :return: The number of attributes
         """
 
-        # read the data from the file
+        # read the data from the file.txt
         with open(filename, 'r') as file:
             line = file.readline()
 
@@ -29,14 +29,14 @@ class Util:
     @staticmethod
     def read_dataset(filename):
         """
-        Reads a dataset from a file
+        Reads a dataset from a file.txt
 
         :param filename: File to read from
         :return: dataset_x, dataset_y, num_attributes, num_classes
         """
         num_attributes = Util.get_number_of_attributes(filename)
 
-        # read the data from the file
+        # read the data from the file.txt
         with open(filename, 'r') as file:
             data = file.readlines()
 
@@ -44,7 +44,7 @@ class Util:
         dataset_x = []
         dataset_y = []
 
-        # for each line in the file
+        # for each line in the file.txt
         for line in data:
 
             # delete double tabs

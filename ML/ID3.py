@@ -55,7 +55,7 @@ def read_data(file_name, has_labels=True, mapping_dicts=None):
                 local_columns = [Column(name=f"A{i + 1}", values=col_data) for i, col_data in
                                  enumerate(transposed_data[:-1 if has_labels else None])]
 
-            # if file has labels, return them as a column. Otherwise, return instances.
+            # if file.txt has labels, return them as a column. Otherwise, return instances.
             if has_labels:
                 local_label_column = Column(name="Label", values=transposed_data[-1])
                 inverse_label_mapping = {v: k for k, v in mapping_dicts[-1].items()}
@@ -195,7 +195,7 @@ def test_decision_tree(test_instances, root_node):
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python ID3.py <training_data_file> <testing_data_file>")
+        print("Usage: python ID3.test.py <training_data_file> <testing_data_file>")
     else:
         train_file_name = sys.argv[1]
         test_file_name = sys.argv[2]

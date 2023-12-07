@@ -1,0 +1,5 @@
+shortest_word: ce
+longest_word: baiatule
+first_word_with_second_letter_b: 
+last_word_with_last_letter_a: ba
+unique_words: ['ba', 'baiatule', 'ce', 'faci']

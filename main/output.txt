@@ -1,0 +1,4 @@
+Longest: output.txt
+Shortest: 3.py
+Second c: 
+Extensions: [('py', 4), ('txt', 3), ('json', 1)]
