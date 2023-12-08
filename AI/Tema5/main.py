@@ -51,13 +51,12 @@ def q_learning(Q_table, episodes, alpha, gamma, epsilon, wind_strength, goal_sta
             next_state_ = next_state(state, action, wind_strength)
             reward = -1 if next_state_ != goal_state else 0
 
-            # Increment Nsa for the current state-action pair
-            Nsa[state + (action,)] += 1
+            # increment Nsa for the current state-action pair
+            sa = tuple(list(state) + [action])
+            Nsa[sa] += 1
 
             # Q-learning update with dynamic alpha
-            Q_table[state + (action,)] += alpha / Nsa[state + (action,)] * (
-                        reward + gamma * np.max(Q_table[next_state_]) - Q_table[state + (action,)]
-            )
+            Q_table[sa] += alpha / Nsa[sa] * (reward + gamma * np.max(Q_table[next_state_]) - Q_table[sa])
 
             state = next_state_
             if state == goal_state:
